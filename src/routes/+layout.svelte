@@ -3,7 +3,7 @@
     import "../i18n.ts"
     import { _, locale } from 'svelte-i18n'
     // @ts-ignore
-    import { DISCORD_AUTH_URL } from "$env/static/public"
+    import { PUBLIC_DISCORD_AUTH_URL } from "$env/static/public"
 
     let { children } = $props();
 </script>
@@ -30,7 +30,7 @@
 
     <div class="end">
         <div class="navbar-item">
-            <a style="decoration: none;" href={DISCORD_AUTH_URL}>
+            <a style="decoration: none;" href={PUBLIC_DISCORD_AUTH_URL}>
                 <button class="button is-link">
                     <span>{$_("login")}</span>
                     <span class="icon">
