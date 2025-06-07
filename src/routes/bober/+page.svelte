@@ -3,7 +3,6 @@
     import { PUBLIC_API_URL } from '$env/static/public';
     import { onMount } from 'svelte';
 
-    const token = localStorage.getItem('token');
     let balance = 0;
 
     onMount(async () => {
@@ -12,7 +11,7 @@
                 method: "GET",
                 headers: {
                     'Content-Type': 'application/json',
-                    "Authorization": `${token}`
+                    "Authorization": `${localStorage.getItem('token')}`
                 }
             });
             if (!response.ok) {
@@ -31,7 +30,7 @@
                 method: "PATCH",
                 headers: {
                     'Content-Type': 'application/json',
-                    "Authorization": `${token}`
+                    "Authorization": `${localStorage.getItem('token')}`
                 }
             })
             if (!response.ok) {
