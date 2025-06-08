@@ -5,6 +5,7 @@
     import { page } from "$app/state";
     // @ts-ignore
     import { PUBLIC_DISCORD_AUTH_URL, PUBLIC_API_URL } from "$env/static/public"
+    import { onMount } from "svelte";
 
     let { children } = $props();
 
@@ -12,21 +13,23 @@
     let avatar: string = $state("");
     let balance: number = $state(0);
     
-    fetch(`${PUBLIC_API_URL}/user/me`, {
-                method: 'GET',
-                headers: {
-                    "Authorization": `${localStorage.getItem('token')}`,
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                    username = data.username;
-                    avatar = data.avatar;
-                    balance = data.balance;
-            })
-            .catch(error => {
-                console.error('failed to fetch user data:', error);
-            });
+    onMount(() => {
+        fetch(`${PUBLIC_API_URL}/user/me`, {
+                    method: 'GET',
+                    headers: {
+                        "Authorization": `${localStorage.getItem('token')}`,
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                        username = data.username;
+                        avatar = data.avatar;
+                        balance = data.balance;
+                })
+                .catch(error => {
+                    console.error('failed to fetch user data:', error);
+                });
+    });
 </script>
 
 <nav class="navbar" style="border-bottom: 2px solid #302c31;">
