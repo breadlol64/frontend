@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { browser } from '$app/environment';
     import "../app.css"
     import "../i18n.ts"
     import { _, locale } from 'svelte-i18n'
@@ -14,21 +15,23 @@
     let balance: number = $state(0);
     
     onMount(() => {
-        fetch(`${PUBLIC_API_URL}/user/me`, {
-                    method: 'GET',
-                    headers: {
-                        "Authorization": `${localStorage.getItem('token')}`,
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                        username = data.username;
-                        avatar = data.avatar;
-                        balance = data.balance;
-                })
-                .catch(error => {
-                    console.error('failed to fetch user data:', error);
-                });
+        if (browser && localStorage.getItem('token')) {
+            fetch(`${PUBLIC_API_URL}/user/me`, {
+                method: 'GET',
+                headers: {
+                    "Authorization": `${localStorage.getItem('token')}`,
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                username = data.username;
+                avatar = data.avatar;
+                balance = data.balance;
+            })
+            .catch(error => {
+                console.error('failed to fetch user data: ', error);
+            });
+        }
     });
 </script>
 
@@ -54,7 +57,7 @@
 
     <div class="end">
         <div class="navbar-item">
-            {#if localStorage.getItem("token")}
+            {#if browser && localStorage.getItem("token")}
                 {#if page.url.pathname != "/bober"}
                     <p>{balance} ₿</p>
                 {/if}
