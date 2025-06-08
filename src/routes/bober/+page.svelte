@@ -4,9 +4,11 @@
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
 
-    if (!localStorage.getItem('token')) {
-        goto('/');
-    }
+    onMount(() => {
+        if (!localStorage.getItem('token')) {
+            goto('/');
+        }
+    });
 
     let balance = 0;
 

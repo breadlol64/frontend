@@ -3,10 +3,13 @@
     import { PUBLIC_API_URL } from "$env/static/public";
     import { _, locale } from 'svelte-i18n'
     import { goto } from '$app/navigation';
+    import { onMount } from 'svelte';
 
-    if (!localStorage.getItem('token')) {
-        goto('/');
-    }
+    onMount(() => {
+        if (!localStorage.getItem('token')) {
+            goto('/');
+        }
+    });
 
     function logout() {
         localStorage.removeItem('token');
