@@ -1,12 +1,13 @@
-<script lang="ts"> 
+<script lang="ts">
     // @ts-ignore
-    import { PUBLIC_API_URL } from '$env/static/public';
-    import { onMount } from 'svelte';
-    import { goto } from '$app/navigation';
+    import { PUBLIC_API_URL } from "$env/static/public";
+    import { onMount } from "svelte";
+    import { goto } from "$app/navigation";
+    import { getCookie } from "../../cookie";
 
     onMount(() => {
-        if (!localStorage.getItem('token')) {
-            goto('/');
+        if (!getCookie("token")) {
+            goto("/");
         }
     });
 
@@ -17,15 +18,15 @@
             const response = await fetch(`${PUBLIC_API_URL}/user/me`, {
                 method: "GET",
                 headers: {
-                    'Content-Type': 'application/json',
-                    "Authorization": `${localStorage.getItem('token')}`
-                }
+                    "Content-Type": "application/json",
+                    Authorization: `${getCookie("token")}`,
+                },
             });
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
-            balance = data.balance;
+            balance = data.user.balance;
         } catch (e) {
             console.error(e);
         }
@@ -33,13 +34,13 @@
 
     async function click() {
         try {
-            const response = await fetch(`${PUBLIC_API_URL}/click`, {
+            const response = await fetch(`${PUBLIC_API_URL}/bober/click`, {
                 method: "PATCH",
                 headers: {
-                    'Content-Type': 'application/json',
-                    "Authorization": `${localStorage.getItem('token')}`
-                }
-            })
+                    "Content-Type": "application/json",
+                    Authorization: `${getCookie("token")}`,
+                },
+            });
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -52,11 +53,14 @@
     }
 </script>
 
-<div class="is-flex is-flex-direction-column is-align-items-center is-justify-content-space-evenly" style="height: 90vh;">
+<div
+    class="is-flex is-flex-direction-column is-align-items-center is-justify-content-space-evenly"
+    style="height: 90vh;"
+>
     <p class="title is-size-2">{balance}</p>
     <button class="circle-button" onclick={click}>
-        <img src="bober.png" alt="click">
-     </button>
+        <img src="bober.png" alt="click" />
+    </button>
 </div>
 
 <style>
@@ -67,7 +71,9 @@
         border: none; /* Remove default button border */
         padding: 0; /* Remove default button padding */
         cursor: pointer;
-        transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out; /* Smooth transitions */
+        transition:
+            transform 0.1s ease-in-out,
+            box-shadow 0.1s ease-in-out; /* Smooth transitions */
         -webkit-tap-highlight-color: transparent; /* Remove blue tap highlight on mobile */
         outline: none; /* Remove focus outline if not desired, or style it */
     }

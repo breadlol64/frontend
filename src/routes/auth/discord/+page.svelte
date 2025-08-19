@@ -4,6 +4,7 @@
     import { PUBLIC_API_URL } from '$env/static/public';
     import { page } from '$app/state';
     import { goto } from '$app/navigation';
+    import { setCookie } from '../../../cookie';
 
     let code: string | null = null;
 
@@ -19,7 +20,7 @@
             })
                 .then(response => response.json())
                 .then(data => {
-                    localStorage.setItem('token', data.token);
+                    setCookie('token', data.token, 30);
                     goto('/profile');
                 })
                 .catch(error => {
