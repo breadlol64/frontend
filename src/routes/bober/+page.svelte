@@ -4,6 +4,7 @@
     import { onMount } from "svelte";
     import { goto } from "$app/navigation";
     import { getCookie } from "../../cookie";
+    import { getUserByToken } from "../../api";
 
     onMount(() => {
         if (!getCookie("token")) {
@@ -14,22 +15,8 @@
     let balance = 0;
 
     onMount(async () => {
-        try {
-            const response = await fetch(`${PUBLIC_API_URL}/user/me`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `${getCookie("token")}`,
-                },
-            });
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
-            balance = data.user.balance;
-        } catch (e) {
-            console.error(e);
-        }
+        let user = await getUserByToken();
+        balance = user.balance;
     });
 
     async function click() {

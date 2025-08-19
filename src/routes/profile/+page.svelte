@@ -1,14 +1,27 @@
 <script lang="ts">
     // @ts-ignore
-    import { PUBLIC_API_URL } from "$env/static/public";
-    import { _, locale } from "svelte-i18n";
+    import { _ } from "svelte-i18n";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
     import { getCookie, deleteCookie } from "../../cookie";
+    import { getUserByToken } from "../../api";
 
-    onMount(() => {
+    let user = $state<any>(null);
+    let loading = $state(true);
+
+    onMount(async () => {
         if (!getCookie("token")) {
             goto("/");
+            return;
+        }
+
+        try {
+            user = await getUserByToken();
+            console.log("User loaded:", user);
+        } catch (error) {
+            console.error("Error loading user:", error);
+        } finally {
+            loading = false;
         }
     });
 
@@ -16,37 +29,29 @@
         deleteCookie("token");
         goto("/");
     }
-
-    let username: string;
-    let avatar: string;
-
-    fetch(`${PUBLIC_API_URL}/user/me`, {
-        method: "GET",
-        headers: {
-            Authorization: `${getCookie("token")}`,
-        },
-    })
-        .then((response) => response.json())
-        .then((data) => {
-            username = data.user.username;
-            avatar = data.user.avatar;
-        })
-        .catch((error) => {
-            console.error("failed to fetch user data:", error);
-        });
 </script>
 
 <div
     class="is-flex is-flex-direction-column is-align-items-center is-justify-content-space-between"
     style="height: 90vh; padding-top: 20px;"
 >
-    <div class="is-flex is-align-items-center">
-        <img class="avatar" src={avatar} alt="avatar" />
-        <p class="username" style="">{username}</p>
-    </div>
-    <button class="button is-danger is-outlined" onclick={logout}
-        >{$_("logout")}</button
-    >
+    {#if loading}
+        <div class="is-flex is-justify-content-center">
+            <p>Loading...</p>
+        </div>
+    {:else if user}
+        <div class="is-flex is-align-items-center">
+            <img class="avatar" src={user.avatar} alt="avatar" />
+            <p class="username">{user.username || "Unknown User"}</p>
+        </div>
+        <button class="button is-danger is-outlined" onclick={logout}>
+            {$_("logout")}
+        </button>
+    {:else}
+        <div class="is-flex is-justify-content-center">
+            <p>Failed to load user data</p>
+        </div>
+    {/if}
 </div>
 
 <style>

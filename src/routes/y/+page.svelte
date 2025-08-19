@@ -1,28 +1,18 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { getCookie } from "../../cookie";
-    import { PUBLIC_API_URL } from "$env/static/public";
+    import { getPostsPage } from "../../api";
 
     let posts: any[] = [];
     let currentPage = 1;
     let loading = false;
     let hasMore = true;
-    // !!!
-    // TODO: !!! MAKE FUNCTION FOR GETTING USER DATA !!!
-    // !!!
     async function loadPosts(page: number) {
         if (loading || !hasMore) return;
 
         loading = true;
         try {
-            const response = await fetch(
-                `${PUBLIC_API_URL}/post?page=${page}`,
-                {
-                    method: "GET",
-                },
-            );
-            const response_data = await response.json();
-            const newPosts = response_data.posts;
+            const newPosts = await getPostsPage(page);
 
             if (newPosts.length === 0) {
                 hasMore = false;
@@ -71,23 +61,27 @@
             <article class="box post">
                 <div class="media">
                     <div class="media-left">
-                        <figure class="image is-64x64">
-                            <img src="" alt="Author avatar" />
+                        <figure class="image">
+                            <img
+                                src={post.author_avatar}
+                                alt="Author avatar"
+                                class="avatar"
+                            />
                         </figure>
                     </div>
                     <div class="media-content">
                         <div class="content">
                             <p>
-                                <strong>test</strong>
+                                <strong>{post.author_username}</strong>
                                 <br />
-                                <small>{formatDate(post["created_at"])}</small>
+                                <small>{formatDate(post.created_at)}</small>
                             </p>
                         </div>
                     </div>
                 </div>
                 <div class="content">
-                    <h2 class="title is-4">{post["title"]}</h2>
-                    <p>{post["content"]}</p>
+                    <h2 class="title is-4">{post.title}</h2>
+                    <p>{post.content}</p>
                 </div>
             </article>
         {/each}
@@ -103,6 +97,11 @@
 </div>
 
 <style>
+    .avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+    }
     .posts-container {
         display: flex;
         flex-direction: column;

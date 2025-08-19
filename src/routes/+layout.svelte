@@ -11,30 +11,23 @@
     } from "$env/static/public";
     import { onMount } from "svelte";
     import { getCookie } from "../cookie";
+    import { getUserByToken } from "../api";
 
     let { children } = $props();
 
-    let username: string = $state("");
-    let avatar: string = $state("");
-    let balance: number = $state(0);
+    let user = $state<any>(null);
+    let loading = $state(true);
 
-    onMount(() => {
+    onMount(async () => {
         if (browser && getCookie("token")) {
-            fetch(`${PUBLIC_API_URL}/user/me`, {
-                method: "GET",
-                headers: {
-                    Authorization: `${getCookie("token")}`,
-                },
-            })
-                .then((response) => response.json())
-                .then((data) => {
-                    username = data.user.username;
-                    avatar = data.user.avatar;
-                    balance = data.user.balance;
-                })
-                .catch((error) => {
-                    console.error("failed to fetch user data: ", error);
-                });
+            try {
+                user = await getUserByToken();
+                console.log("User loaded:", user);
+            } catch (error) {
+                console.error("Error loading user:", error);
+            } finally {
+                loading = false;
+            }
         }
     });
 </script>
@@ -76,14 +69,14 @@
 
     <div class="end">
         <div class="navbar-item">
-            {#if browser && getCookie("token")}
+            {#if browser && getCookie("token") && !loading && user}
                 {#if page.url.pathname != "/bober"}
-                    <p>{balance} ₿</p>
+                    <p>{user.balance || 0} ₿</p>
                 {/if}
                 <a href="/profile">
                     <div class="is-flex is-align-items-center">
-                        <p class="username">{username}</p>
-                        <img class="avatar" src={avatar} alt="avatar" />
+                        <p class="username">{user.username || "User"}</p>
+                        <img class="avatar" src={user.avatar} alt="avatar" />
                     </div>
                 </a>
             {:else}
